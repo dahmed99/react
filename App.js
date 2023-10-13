@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Navbar, Form, Button } from 'react-bootstrap';
+import './custom.css';
 
 function App() {
   const [formData, setFormData] = useState({
@@ -39,41 +40,43 @@ function App() {
 
   return (
     <Container>
-      <Navbar bg="light" expand="lg">
+      <Navbar bg="dark" variant="dark">
         <Navbar.Brand>PTSRE Observability Automation</Navbar.Brand>
       </Navbar>
-      <Form onSubmit={handleSubmit}>
-        <Form.Group>
-          <Form.Label>Platform</Form.Label>
-          <Form.Control
-            type="text"
-            name="platform"
-            value={formData.platform}
-            onChange={handleChange}
-          />
-        </Form.Group>
-        <Form.Group>
-          <Form.Label>Repo URL</Form.Label>
-          <Form.Control
-            type="text"
-            name="repoUrl"
-            value={formData.repoUrl}
-            onChange={handleChange}
-          />
-        </Form.Group>
-        <Form.Group>
-          <Form.Label>Branch</Form.Label>
-          <Form.Control
-            type="text"
-            name="branch"
-            value={formData.branch}
-            onChange={handleChange}
-          />
-        </Form.Group>
-        <Button type="submit" variant="primary">
-          Submit
-        </Button>
-      </Form>
+      <div className="center-form">
+        <Form onSubmit={handleSubmit}>
+          <Form.Group>
+            <Form.Label>Platform</Form.Label>
+            <Form.Control
+              type="text"
+              name="platform"
+              value={formData.platform}
+              onChange={handleChange}
+            />
+          </Form.Group>
+          <Form.Group>
+            <Form.Label>Repo URL</Form.Label>
+            <Form.Control
+              type="text"
+              name="repoUrl"
+              value={formData.repoUrl}
+              onChange={handleChange}
+            />
+          </Form.Group>
+          <Form.Group>
+            <Form.Label>Branch</Form.Label>
+            <Form.Control
+              type="text"
+              name="branch"
+              value={formData.branch}
+              onChange={handleChange}
+            />
+          </Form.Group>
+          <Button type="submit" variant="primary">
+            Submit
+          </Button>
+        </Form>
+      </div>
     </Container>
   );
 }
