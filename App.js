@@ -5,7 +5,7 @@ import './App.css';
 function App() {
   return (
     <div className="d-flex justify-content-center align-items-center h-100">
-      <div className="container p-5">
+      <div className="container p-4">
         <nav className="navbar navbar-expand-lg navbar-light bg-light">
           <a className="navbar-brand" href="#">Your Logo</a>
           <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
