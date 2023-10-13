@@ -1,8 +1,0 @@
-/* src/custom.css */
-
-/* Center the form on the page */
-.center-form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
