@@ -3,6 +3,37 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
 function App() {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = {
+      input1: formData.get('input1'),
+      input2: formData.get('input2'),
+      input3: formData.get('input3'),
+      input4: formData.get('input4'),
+      input5: formData.get('input5'),
+    };
+
+    try {
+      const response = await fetch('https://test.com/1', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        window.alert('Form data sent successfully!');
+      } else {
+        window.alert('Failed to send form data.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      window.alert('An error occurred while sending the form data.');
+    }
+  };
+
   return (
     <div className="d-flex justify-content-center align-items-center h-100">
       <div className="container p-4">
@@ -28,7 +59,7 @@ function App() {
             </ul>
           </div>
         </nav>
-        <form>
+        <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="input1">Input 1:</label>
             <input type="text" className="form-control" id="input1" name="input1" />
