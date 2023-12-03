@@ -1,40 +1,29 @@
 // FormPage.test.js
-
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect'; // For additional matchers
+import '@testing-library/jest-dom';
+import FormPage from './FormPage'; // Make sure to import your actual FormPage component
 
-import FormPage from './FormPage'; // Import your actual FormPage component
+test('submitting the form with valid data', () => {
+  render(<FormPage />);
 
-describe('FormPage', () => {
-  it('should handle form submission', () => {
-    render(<FormPage />); // Render your FormPage component
-
-    // Mock data for testing
-    const formData = {
-      input_file_path: 'example_path',
-      platform: 'example_platform',
-      repo_clone_url: 'https://github.com/example/repo.git',
-      branch: 'main',
-      eks_terraform_repo: 'https://github.com/example/eks-terraform.git',
-      eks_terraform_branch: 'master',
-    };
-
-    // Iterate over the formData and populate the corresponding input fields
-    Object.entries(formData).forEach(([key, value]) => {
-      const inputElement = screen.getByTestId(`input_${key}`);
-      fireEvent.change(inputElement, { target: { value } });
-    });
-
-    // Trigger form submission
-    const submitButton = screen.getByText('Submit'); // Adjust this based on your actual submit button text
-    fireEvent.click(submitButton);
-
-    // Add assertions based on your expected behavior after form submission
-    // For example, you might check for the presence of a success message
-
-    // For demonstration purposes, let's check if a success message is present
-    const successMessage = screen.getByTestId('success-message');
-    expect(successMessage).toBeInTheDocument();
+  // Fill in the form fields
+  fireEvent.change(screen.getByLabelText(/email address/i), {
+    target: { value: 'test@example.com' },
   });
+
+  fireEvent.change(screen.getByLabelText(/password/i), {
+    target: { value: 'password123' },
+  });
+
+  fireEvent.click(screen.getByLabelText(/check me out/i));
+
+  // Submit the form
+  fireEvent.click(screen.getByText(/submit/i));
+
+  // Assert that the form has been submitted successfully or handle the success case
+  // For example, you can assert that a success message is displayed on the page
+  expect(screen.getByText(/form submitted successfully/i)).toBeInTheDocument();
 });
+
+// You can add more tests for different scenarios (e.g., invalid data, form validation, etc.)
