@@ -10,6 +10,12 @@ const PricingPage = () => {
     branch: '',
     eksTerraformRepo: '',
     eksTerraformBranch: '',
+    username: '',
+    token: '',
+    author: '',
+    emailAddress: '',
+    jiraTicket: '',
+    s3Upload: 'true', // Default value
   });
 
   // Function to handle form field changes
@@ -70,6 +76,7 @@ const PricingPage = () => {
               onChange={handleInputChange}
             />
           </div>
+
           <div className="form-group">
             <label htmlFor="platform">Platform</label>
             <select
@@ -84,6 +91,7 @@ const PricingPage = () => {
               <option>EC2</option>
             </select>
           </div>
+
           <div className="form-group">
             <label htmlFor="repo_clone_url">Code Repo URL</label>
             <input
@@ -96,6 +104,7 @@ const PricingPage = () => {
               onChange={handleInputChange}
             />
           </div>
+
           <div className="form-group">
             <label htmlFor="branch">Branch</label>
             <input
@@ -108,6 +117,7 @@ const PricingPage = () => {
               onChange={handleInputChange}
             />
           </div>
+
           <div className="form-group">
             <label htmlFor="eks_terraform_repo">Terraform Repo URL</label>
             <input
@@ -120,6 +130,7 @@ const PricingPage = () => {
               onChange={handleInputChange}
             />
           </div>
+
           <div className="form-group">
             <label htmlFor="eks_terraform_branch">Terraform Branch</label>
             <input
@@ -132,6 +143,86 @@ const PricingPage = () => {
               onChange={handleInputChange}
             />
           </div>
+
+          {/* New input fields */}
+          <div className="form-group">
+            <label htmlFor="username">Username</label>
+            <input
+              type="text"
+              className="form-control"
+              name="username"
+              id="username"
+              placeholder="e.g. A000000"
+              value={formData.username}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="token">Token</label>
+            <input
+              type="text"
+              className="form-control"
+              name="token"
+              id="token"
+              value={formData.token}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="author">Author</label>
+            <input
+              type="text"
+              className="form-control"
+              name="author"
+              id="author"
+              placeholder="e.g. Appleseed, Jon"
+              value={formData.author}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="email_address">Email</label>
+            <input
+              type="email"
+              className="form-control"
+              name="emailAddress"
+              id="email_address"
+              placeholder="e.g. Jon.Appleseed@jpmchase.com"
+              value={formData.emailAddress}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="jira_ticket">Jira Ticket</label>
+            <input
+              type="text"
+              className="form-control"
+              name="jiraTicket"
+              id="jira_ticket"
+              placeholder="e.g. JIRA-0000"
+              value={formData.jiraTicket}
+              onChange={handleInputChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="s3_upload">S3 Upload</label>
+            <select
+              name="s3Upload"
+              id="s3_upload"
+              className="form-control"
+              value={formData.s3Upload}
+              onChange={handleInputChange}
+            >
+              <option>true</option>
+              <option>false</option>
+            </select>
+          </div>
+
           <button type="submit" className="btn btn-dark">Submit</button>
         </form>
 
