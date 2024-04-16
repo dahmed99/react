@@ -1,88 +1,59 @@
-@Configuration
-@Profile("dev")
-public class PostgreConfig {
+import java.sql.*;
 
-    @Value("${AWS_RDS_SECRET_NAME}")
-    private String secretName;
+public class OracleDBExample {
+    // AWS RDS Oracle database credentials
+    static final String DB_URL = "jdbc:oracle:thin:@your_rds_endpoint:your_port:your_db_name";
+    static final String USER = "your_username";
+    static final String PASS = "your_password";
 
-    @Value("${AWS_REGION}")
-    private String region;
+    public static void main(String[] args) {
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            // Register JDBC driver
+            Class.forName("oracle.jdbc.driver.OracleDriver");
 
-    @Value("${SPRING_DATASOURCE_DRIVER_CLASS_NAME}")
-    private String postgresDriverClassName;
+            // Open a connection
+            System.out.println("Connecting to database...");
+            conn = DriverManager.getConnection(DB_URL, USER, PASS);
 
-    @Value("${SPRING_DATASOURCE_URL}")
-    private String postgresJdbcUrl;
+            // Create a table
+            System.out.println("Creating table...");
+            stmt = conn.createStatement();
+            String sql = "CREATE TABLE clients " +
+                    "(id INTEGER not NULL, " +
+                    " name VARCHAR(255), " +
+                    " age INTEGER, " +
+                    " email VARCHAR(255), " +
+                    " phone VARCHAR(20), " +
+                    " PRIMARY KEY ( id ))";
+            stmt.executeUpdate(sql);
+            System.out.println("Table created successfully");
 
-    @Value("${SPRING_DATASOURCE_USERNAME}")
-    private String postgresUsername;
+            // Insert a record
+            System.out.println("Inserting a record...");
+            sql = "INSERT INTO clients (id, name, age, email, phone) VALUES (1, 'John Doe', 30, 'john@example.com', '123456789')";
+            stmt.executeUpdate(sql);
+            System.out.println("Record inserted successfully");
 
-    @Value("${ORACLE_DATASOURCE_DRIVER_CLASS_NAME}")
-    private String oracleDriverClassName;
-
-    @Value("${ORACLE_DATASOURCE_URL}")
-    private String oracleJdbcUrl;
-
-    @Value("${ORACLE_DATASOURCE_USERNAME}")
-    private String oracleUsername;
-
-    @Value("${ORACLE_DATASOURCE_PASSWORD}")
-    private String oraclePassword;
-
-    @Bean
-    @Primary
-    @ConfigurationProperties(prefix = "spring.datasource")
-    public DataSource postgresDataSource() {
-        return DataSourceBuilder.create()
-                                 .driverClassName(postgresDriverClassName)
-                                 .url(postgresJdbcUrl)
-                                 .username(postgresUsername)
-                                 .password(getAwsSecret())
-                                 .build();
-    }
-
-    @Bean
-    @ConfigurationProperties(prefix = "oracle.datasource")
-    public DataSource oracleDataSource() {
-        return DataSourceBuilder.create()
-                                 .driverClassName(oracleDriverClassName)
-                                 .url(oracleJdbcUrl)
-                                 .username(oracleUsername)
-                                 .password(oraclePassword)
-                                 .build();
-    }
-
-    // Other methods as per your requirement
-
-    private String getAwsSecret() {
-        // Implementation Omitted
-    }
-}
-
-
-
-import org.springframework.data.repository.Repository;
-
-public interface OwnerRepository extends Repository<Client, Integer> {
-    Client save(Client client);
-}
-
-
-import org.springframework.stereotype.Service;
-
-@Service
-public class DatabaseRWService {
-
-    private final OwnerRepository postgresRepository;
-    private final OwnerOracleRepository oracleRepository;
-
-    public DatabaseRWService(OwnerRepository postgresRepository, OwnerOracleRepository oracleRepository) {
-        this.postgresRepository = postgresRepository;
-        this.oracleRepository = oracleRepository;
-    }
-
-    public void saveToBothDatabases(Client client) {
-        postgresRepository.save(client);
-        oracleRepository.save(client);
+        } catch (SQLException se) {
+            // Handle errors for JDBC
+            se.printStackTrace();
+        } catch (Exception e) {
+            // Handle errors for Class.forName
+            e.printStackTrace();
+        } finally {
+            // Finally block to close resources
+            try {
+                if (stmt != null) stmt.close();
+            } catch (SQLException se2) {
+            } // nothing we can do
+            try {
+                if (conn != null) conn.close();
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+        }
+        System.out.println("Goodbye!");
     }
 }
