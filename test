@@ -1,14 +1,18 @@
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
+import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit.jupiter.PowerMockExtension;
 
 import java.util.Base64;
 import java.util.HashMap;
@@ -17,7 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 
-@SpringBootTest
+@ExtendWith(PowerMockExtension.class)
+@PrepareForTest({AWSSecretsManagerClientBuilder.class})
 public class UtilsServiceTest {
 
     @Mock
@@ -27,10 +32,17 @@ public class UtilsServiceTest {
     private ObjectMapper objectMapper;
 
     @Test
-    public void testGetAwsSecret() throws JsonProcessingException {
+    public void testGetAwsSecret() throws Exception {
         // Mocking AWS Secrets Manager client response
         GetSecretValueResult secretValueResult = new GetSecretValueResult();
         secretValueResult.setSecretString("{\"password\":\"testPassword\"}");
+
+        // Mocking static method
+        PowerMockito.mockStatic(AWSSecretsManagerClientBuilder.class);
+        AWSSecretsManagerClientBuilder clientBuilderMock = Mockito.mock(AWSSecretsManagerClientBuilder.class);
+        Mockito.when(AWSSecretsManagerClientBuilder.standard()).thenReturn(clientBuilderMock);
+        Mockito.when(clientBuilderMock.withRegion(any(Regions.class))).thenReturn(clientBuilderMock);
+        Mockito.when(clientBuilderMock.build()).thenReturn(awsSecretsManager);
 
         Mockito.when(awsSecretsManager.getSecretValue(any(GetSecretValueRequest.class)))
                 .thenReturn(secretValueResult);
@@ -46,14 +58,8 @@ public class UtilsServiceTest {
         Mockito.when(objectMapper.readValue(any(byte[].class), any(Class.class)))
                 .thenReturn(fieldMap);
 
-        // Mocking AWSSecretsManagerClientBuilder
-        Mockito.mockStatic(AWSSecretsManagerClientBuilder.class);
-        Mockito.when(AWSSecretsManagerClientBuilder.standard().build())
-                .thenReturn(awsSecretsManager);
-
         // Setting up UtilsService instance
-        UtilsService utilsService = new UtilsService();
-        utilsService.setObjectMapper(objectMapper);
+        UtilsService utilsService = new UtilsService(objectMapper);
 
         // Calling the method under test
         String result = utilsService.getAwsSecret("testSecret");
