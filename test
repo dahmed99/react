@@ -46,6 +46,16 @@ public class UtilsServiceTest {
         Mockito.when(objectMapper.readValue(any(byte[].class), any(Class.class)))
                 .thenReturn(fieldMap);
 
+        // Mocking AWSSecretsManagerClientBuilder
+        Mockito.when(AWSSecretsManagerClientBuilder.standard())
+                .thenReturn(Mockito.mock(AWSSecretsManagerClientBuilder.class));
+        Mockito.when(AWSSecretsManagerClientBuilder.standard().withRegion(any(Regions.class)))
+                .thenReturn(Mockito.mock(AWSSecretsManagerClientBuilder.class));
+        Mockito.when(AWSSecretsManagerClientBuilder.standard().withCredentials(any(WebIdentityTokenCredentialsProvider.class)))
+                .thenReturn(Mockito.mock(AWSSecretsManagerClientBuilder.class));
+        Mockito.when(AWSSecretsManagerClientBuilder.standard().withCredentials(any(WebIdentityTokenCredentialsProvider.class)).build())
+                .thenReturn(awsSecretsManager);
+
         // Setting up UtilsService instance
         UtilsService utilsService = new UtilsService();
         utilsService.setAwsSecretsManager(awsSecretsManager);
