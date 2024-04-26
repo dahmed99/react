@@ -1,5 +1,6 @@
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
+import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -47,18 +48,14 @@ public class UtilsServiceTest {
                 .thenReturn(fieldMap);
 
         // Mocking AWSSecretsManagerClientBuilder
-        Mockito.when(AWSSecretsManagerClientBuilder.standard())
-                .thenReturn(Mockito.mock(AWSSecretsManagerClientBuilder.class));
-        Mockito.when(AWSSecretsManagerClientBuilder.standard().withRegion(any(Regions.class)))
-                .thenReturn(Mockito.mock(AWSSecretsManagerClientBuilder.class));
-        Mockito.when(AWSSecretsManagerClientBuilder.standard().withCredentials(any(WebIdentityTokenCredentialsProvider.class)))
-                .thenReturn(Mockito.mock(AWSSecretsManagerClientBuilder.class));
-        Mockito.when(AWSSecretsManagerClientBuilder.standard().withCredentials(any(WebIdentityTokenCredentialsProvider.class)).build())
-                .thenReturn(awsSecretsManager);
+        AWSSecretsManagerClientBuilder clientBuilderMock = Mockito.mock(AWSSecretsManagerClientBuilder.class);
+        Mockito.when(AWSSecretsManagerClientBuilder.standard()).thenReturn(clientBuilderMock);
+        Mockito.when(clientBuilderMock.withRegion(any(Regions.class))).thenReturn(clientBuilderMock);
+        Mockito.when(clientBuilderMock.withCredentials(any())).thenReturn(clientBuilderMock);
+        Mockito.when(clientBuilderMock.build()).thenReturn(awsSecretsManager);
 
         // Setting up UtilsService instance
         UtilsService utilsService = new UtilsService();
-        utilsService.setAwsSecretsManager(awsSecretsManager);
         utilsService.setObjectMapper(objectMapper);
 
         // Calling the method under test
