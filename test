@@ -15,8 +15,10 @@ public class YourClassTest {
     
     @Before
     public void setUp() {
+        // Mocking WebIdentityTokenCredentialsProvider to provide dummy role ARN and session name
         WebIdentityTokenCredentialsProvider credentialsProvider = mock(WebIdentityTokenCredentialsProvider.class);
-        when(credentialsProvider.getCredentials()).thenReturn(null); // Mock credentials
+        when(credentialsProvider.getRoleArn()).thenReturn("dummyRoleARN");
+        when(credentialsProvider.getRoleSessionName()).thenReturn("dummySessionName");
         
         secretsManager = mock(AWSSecretsManager.class);
         yourClass = new YourClass(secretsManager, credentialsProvider);
