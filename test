@@ -5,30 +5,31 @@ import com.amazonaws.services.secretsmanager.*;
 import com.amazonaws.services.secretsmanager.model.*;
 
 import org.junit.*;
-import org.mockito.*;
 
 public class AWSSecretsManagerUtilsTest {
 
     @Test
     public void testGetSecret() {
-        // Mocking AWSSecretsManager
+        // Create a mock AWSSecretsManager object
         AWSSecretsManager secretsManager = mock(AWSSecretsManager.class);
 
-        // Mocked response
+        // Create a mocked response
         GetSecretValueResult result = new GetSecretValueResult()
                                             .withSecretString("mocked-secret-value");
 
-        // Mocking AWS Secrets Manager client behavior
+        // Define behavior for the mocked AWSSecretsManager object
         when(secretsManager.getSecretValue(any(GetSecretValueRequest.class)))
             .thenReturn(result);
 
-        // Testing the method
+        // Pass the mocked AWSSecretsManager object to the method
         String secretName = "mocked-secret-name";
         String region = "mocked-region";
         String secretValue = AWSSecretsManagerUtils.getSecret(secretName, region, secretsManager);
 
-        // Verification
+        // Verify that the method returns the expected value
         assertEquals("mocked-secret-value", secretValue);
+
+        // Verify that the getSecretValue method was called exactly once
         verify(secretsManager, times(1)).getSecretValue(any(GetSecretValueRequest.class));
     }
 }
