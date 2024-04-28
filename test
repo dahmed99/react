@@ -4,6 +4,7 @@ import static org.mockito.Mockito.*;
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueResult;
+import com.amazonaws.auth.WebIdentityTokenCredentialsProvider;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,8 +15,11 @@ public class YourClassTest {
     
     @Before
     public void setUp() {
+        WebIdentityTokenCredentialsProvider credentialsProvider = mock(WebIdentityTokenCredentialsProvider.class);
+        when(credentialsProvider.getCredentials()).thenReturn(null); // Mock credentials
+        
         secretsManager = mock(AWSSecretsManager.class);
-        yourClass = new YourClass(secretsManager);
+        yourClass = new YourClass(secretsManager, credentialsProvider);
     }
     
     @Test
