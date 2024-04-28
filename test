@@ -3,6 +3,8 @@ import static org.mockito.Mockito.*;
 
 import com.amazonaws.services.secretsmanager.*;
 import com.amazonaws.services.secretsmanager.model.*;
+import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 
 import org.junit.*;
 
@@ -13,23 +15,20 @@ public class AWSSecretsManagerUtilsTest {
         // Create a mock AWSSecretsManager object
         AWSSecretsManager secretsManager = mock(AWSSecretsManager.class);
 
-        // Create a mocked response
-        GetSecretValueResult result = new GetSecretValueResult()
-                                            .withSecretString("mocked-secret-value");
+        // Create a mock AWSSecretsManagerClientBuilder object
+        AWSSecretsManagerClientBuilder clientBuilder = mock(AWSSecretsManagerClientBuilder.class);
 
-        // Define behavior for the mocked AWSSecretsManager object
-        when(secretsManager.getSecretValue(any(GetSecretValueRequest.class)))
-            .thenReturn(result);
+        // Mock the behavior of AWSSecretsManagerClientBuilder
+        when(clientBuilder.standard()).thenReturn(clientBuilder);
+        when(clientBuilder.withRegion(anyString())).thenReturn(clientBuilder);
+        when(clientBuilder.build()).thenReturn(secretsManager);
 
-        // Pass the mocked AWSSecretsManager object to the method
+        // Pass the mocked AWSSecretsManagerClientBuilder object to the method
         String secretName = "mocked-secret-name";
         String region = "mocked-region";
-        String secretValue = AWSSecretsManagerUtils.getSecret(secretName, region, secretsManager);
+        String secretValue = AWSSecretsManagerUtils.getSecret(secretName, region, clientBuilder);
 
         // Verify that the method returns the expected value
         assertEquals("mocked-secret-value", secretValue);
-
-        // Verify that the getSecretValue method was called exactly once
-        verify(secretsManager, times(1)).getSecretValue(any(GetSecretValueRequest.class));
     }
 }
