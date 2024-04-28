@@ -1,34 +1,46 @@
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import com.amazonaws.services.secretsmanager.*;
-import com.amazonaws.services.secretsmanager.model.*;
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.amazonaws.services.secretsmanager.AWSSecretsManager;
+import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
+import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest;
+import com.amazonaws.services.secretsmanager.model.GetSecretValueResult;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
 
-import org.junit.*;
+public class UtilsServiceTest {
 
-public class AWSSecretsManagerUtilsTest {
+    private UtilsService utilsService;
+
+    private ObjectMapper objectMapper;
+
+    @BeforeEach
+    void setUp() {
+        objectMapper = mock(ObjectMapper.class);
+        utilsService = new UtilsService(objectMapper);
+    }
 
     @Test
-    public void testGetSecret() {
-        // Create a mock AWSSecretsManager object
+    void testGetAwsSecret() {
+        // Mocking AWS Secrets Manager client
         AWSSecretsManager secretsManager = mock(AWSSecretsManager.class);
+        when(secretsManager.getSecretValue(any(GetSecretValueRequest.class)))
+            .thenReturn(new GetSecretValueResult().withSecretString("TestSecretValue"));
 
-        // Create a mock AWSSecretsManagerClientBuilder object
         AWSSecretsManagerClientBuilder clientBuilder = mock(AWSSecretsManagerClientBuilder.class);
-
-        // Mock the behavior of AWSSecretsManagerClientBuilder
-        when(clientBuilder.standard()).thenReturn(clientBuilder);
-        when(clientBuilder.withRegion(anyString())).thenReturn(clientBuilder);
+        when(clientBuilder.withRegion(any())).thenReturn(clientBuilder);
         when(clientBuilder.build()).thenReturn(secretsManager);
 
-        // Pass the mocked AWSSecretsManagerClientBuilder object to the method
-        String secretName = "mocked-secret-name";
-        String region = "mocked-region";
-        String secretValue = AWSSecretsManagerUtils.getSecret(secretName, region, clientBuilder);
+        // Mocking region value
+        utilsService.region = "us-east-1";
 
-        // Verify that the method returns the expected value
-        assertEquals("mocked-secret-value", secretValue);
+        // Test
+        String secretName = "testSecret";
+        String secretValue = utilsService.getAwsSecret(secretName);
+
+        // Verify
+        verify(secretsManager).getSecretValue(any(GetSecretValueRequest.class));
+        assertEquals("TestSecretValue", secretValue);
     }
 }
