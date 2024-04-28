@@ -1,70 +1,41 @@
-import com.amazonaws.regions.Regions;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
+
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
-import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueResult;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit.jupiter.PowerMockExtension;
+import org.junit.Before;
+import org.junit.Test;
 
-import java.util.Base64;
-import java.util.HashMap;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-
-@ExtendWith(PowerMockExtension.class)
-@PrepareForTest({AWSSecretsManagerClientBuilder.class})
-public class UtilsServiceTest {
-
-    @Mock
-    private AWSSecretsManager awsSecretsManager;
-
-    @Mock
-    private ObjectMapper objectMapper;
-
+public class YourClassTest {
+    
+    private YourClass yourClass;
+    private AWSSecretsManager secretsManager;
+    
+    @Before
+    public void setUp() {
+        secretsManager = mock(AWSSecretsManager.class);
+        yourClass = new YourClass(secretsManager);
+    }
+    
     @Test
-    public void testGetAwsSecret() throws Exception {
-        // Mocking AWS Secrets Manager client response
-        GetSecretValueResult secretValueResult = new GetSecretValueResult();
-        secretValueResult.setSecretString("{\"password\":\"testPassword\"}");
-
-        // Mocking static method
-        PowerMockito.mockStatic(AWSSecretsManagerClientBuilder.class);
-        AWSSecretsManagerClientBuilder clientBuilderMock = Mockito.mock(AWSSecretsManagerClientBuilder.class);
-        Mockito.when(AWSSecretsManagerClientBuilder.standard()).thenReturn(clientBuilderMock);
-        Mockito.when(clientBuilderMock.withRegion(any(Regions.class))).thenReturn(clientBuilderMock);
-        Mockito.when(clientBuilderMock.build()).thenReturn(awsSecretsManager);
-
-        Mockito.when(awsSecretsManager.getSecretValue(any(GetSecretValueRequest.class)))
-                .thenReturn(secretValueResult);
-
-        // Mocking ObjectMapper response
-        HashMap<String, String> fieldMap = new HashMap<>();
-        fieldMap.put("password", "testPassword");
-
-        Mockito.when(objectMapper.readValue(anyString(), any(TypeReference.class)))
-                .thenReturn(fieldMap);
-
-        // Mocking Base64 decode
-        Mockito.when(objectMapper.readValue(any(byte[].class), any(Class.class)))
-                .thenReturn(fieldMap);
-
-        // Setting up UtilsService instance
-        UtilsService utilsService = new UtilsService(objectMapper);
-
-        // Calling the method under test
-        String result = utilsService.getAwsSecret("testSecret");
-
-        // Assertion
-        assertEquals("testPassword", result);
+    public void testGetAwsSecret_Success() {
+        // Mock successful retrieval of secret value
+        GetSecretValueResult result = new GetSecretValueResult();
+        result.setSecretString("{\"password\": \"myPassword\"}");
+        when(secretsManager.getSecretValue(any(GetSecretValueRequest.class)))
+                .thenReturn(result);
+        
+        String secret = yourClass.getAwsSecret("mySecret");
+        assertEquals("myPassword", secret);
+    }
+    
+    @Test(expected = RuntimeException.class)
+    public void testGetAwsSecret_Exception() {
+        // Mock exception during retrieval
+        when(secretsManager.getSecretValue(any(GetSecretValueRequest.class)))
+                .thenThrow(new RuntimeException("Error retrieving secret"));
+        
+        yourClass.getAwsSecret("mySecret");
     }
 }
