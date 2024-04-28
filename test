@@ -1,47 +1,61 @@
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
-
+import com.amazonaws.auth.WebIdentityTokenCredentialsProvider;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.secretsmanager.AWSSecretsManager;
+import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest;
 import com.amazonaws.services.secretsmanager.model.GetSecretValueResult;
-import com.amazonaws.auth.WebIdentityTokenCredentialsProvider;
-import org.junit.Before;
-import org.junit.Test;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
-public class YourClassTest {
-    
-    private YourClass yourClass;
-    private AWSSecretsManager secretsManager;
-    
-    @Before
-    public void setUp() {
-        // Mocking WebIdentityTokenCredentialsProvider to provide dummy role ARN and session name
-        WebIdentityTokenCredentialsProvider credentialsProvider = mock(WebIdentityTokenCredentialsProvider.class);
-        when(credentialsProvider.getRoleArn()).thenReturn("dummyRoleARN");
-        when(credentialsProvider.getRoleSessionName()).thenReturn("dummySessionName");
-        
-        secretsManager = mock(AWSSecretsManager.class);
-        yourClass = new YourClass(secretsManager, credentialsProvider);
+import java.lang.reflect.Field;
+import java.util.Base64;
+import java.util.HashMap;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class AwsSecretsManagerTest {
+
+    private AWSSecretsManager client;
+    private ObjectMapper objectMapper;
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        client = AWSSecretsManagerClientBuilder.standard()
+                .withCredentials(new WebIdentityTokenCredentialsProvider())
+                .withRegion(Regions.forName("us-east-1"))
+                .build();
+
+        // Set roleArn and roleSessionName using reflection
+        setField(client, "roleArn", "yourRoleArn");
+        setField(client, "roleSessionName", "yourRoleSessionName");
+
+        objectMapper = new ObjectMapper();
     }
-    
+
+    private void setField(Object object, String fieldName, Object value) throws Exception {
+        Field field = AWSSecretsManagerClientBuilder.class.getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(object, value);
+    }
+
     @Test
-    public void testGetAwsSecret_Success() {
-        // Mock successful retrieval of secret value
-        GetSecretValueResult result = new GetSecretValueResult();
-        result.setSecretString("{\"password\": \"myPassword\"}");
-        when(secretsManager.getSecretValue(any(GetSecretValueRequest.class)))
-                .thenReturn(result);
-        
-        String secret = yourClass.getAwsSecret("mySecret");
-        assertEquals("myPassword", secret);
-    }
-    
-    @Test(expected = RuntimeException.class)
-    public void testGetAwsSecret_Exception() {
-        // Mock exception during retrieval
-        when(secretsManager.getSecretValue(any(GetSecretValueRequest.class)))
-                .thenThrow(new RuntimeException("Error retrieving secret"));
-        
-        yourClass.getAwsSecret("mySecret");
+    public void testGetAwsSecret() {
+        // Mock getSecretValueResult
+        GetSecretValueResult mockResult = Mockito.mock(GetSecretValueResult.class);
+        Mockito.when(mockResult.getResultString()).thenReturn("{\"password\": \"yourPassword\"}");
+
+        // Mock client.getSecretValue()
+        Mockito.when(client.getSecretValue(Mockito.any(GetSecretValueRequest.class))).thenReturn(mockResult);
+
+        // Call the method
+        AwsSecretsManager awsSecretsManager = new AwsSecretsManager(client, objectMapper);
+        String password = awsSecretsManager.getAwsSecret("yourSecretName");
+
+        // Assertion
+        assertEquals("yourPassword", password);
     }
 }
